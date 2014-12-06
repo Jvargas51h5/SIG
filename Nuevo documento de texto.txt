@@ -1,0 +1,37 @@
+layer.LabelField = "STATE_ABBR"
+	layer.ShowLabels = True
+	layer.LabelFont.Name = "Verdana"
+	layer.LabelFont.Size = 12
+	layer.LabelFont.Bold = True
+	layer.LabelStyle = LabelStyle.PolygonCenter
+
+Map1.AddLayer("D:\MAPS\cities.shp")
+
+' search for a city
+Dim city As Recordset
+city = Map1("cities").SearchExpression("CITY_NAME = ""Baldwin"")
+
+If city.EOF Then
+  MessageBox.Show("City not found.")
+  Return
+End If
+
+Dim cityCenter As Point
+cityCenter = city.Shape.GetPoint(0)
+
+Dim searchDistance As Double
+searchDistance = Map1.ConvertDistance(5, MeasureUnit.Mile, Map1.MapUnit) ' distance = 5 miles
+
+' search for cities within 5 miles
+Dim nearestCities As Recordset
+nearestCities = Map1("cities").SearchByDistance(cityCenter, searchDistance)
+
+If nearestCities.EOF Then
+  MessageBox.Show("Nearest cities not found.")
+  Return
+End If
+
+' display the found records in a DataGrid
+DataGrid1.DataSource = nearestCities
+DataGrid1.DataBind()
+
